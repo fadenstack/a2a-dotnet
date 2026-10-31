@@ -6,7 +6,7 @@ namespace A2A.UnitTests.Server;
 
 public class A2AServerTests
 {
-    private sealed class TestAgentHandler : IAgentHandler
+    private sealed class TestAgentHandler : IAgentHandler, IAgentCancellationHandler
     {
         public Func<RequestContext, AgentEventQueue, CancellationToken, Task>? OnExecute { get; set; }
         public Func<RequestContext, AgentEventQueue, CancellationToken, Task>? OnCancel { get; set; }

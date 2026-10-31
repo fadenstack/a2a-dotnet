@@ -371,7 +371,15 @@ public partial class A2AServer
                 }
                 else if (_cancelHandler)
                 {
-                    await _server._handler.CancelAsync(Context, _events, cancellationToken).ConfigureAwait(false);
+                    if (_server._handler is IAgentCancellationHandler cancellationHandler)
+                    {
+                        await cancellationHandler.CancelAsync(Context, _events, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        var updater = new TaskUpdater(_events, Context.TaskId, Context.ContextId);
+                        await updater.CancelAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+                    }
                 }
                 else
                 {

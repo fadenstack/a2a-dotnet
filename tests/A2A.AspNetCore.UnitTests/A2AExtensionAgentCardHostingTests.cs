@@ -242,7 +242,7 @@ public sealed class A2AExtensionAgentCardHostingTests
 
     private static string ReadBody(HttpContext context) => Encoding.UTF8.GetString(((MemoryStream)context.Response.Body).ToArray());
 
-    private sealed class TestAgentHandler : IAgentHandler
+    private sealed class TestAgentHandler : IAgentHandler, IAgentCancellationHandler
     {
         public Task ExecuteAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken) => Task.CompletedTask;
         public Task CancelAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken) => Task.CompletedTask;

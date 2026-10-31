@@ -519,7 +519,7 @@ public sealed class PushNotificationServerTests
         Assert.Empty(_sender.Events);
     }
 
-    private sealed class Handler : IAgentHandler
+    private sealed class Handler : IAgentHandler, IAgentCancellationHandler
     {
         internal Func<RequestContext, AgentEventQueue, CancellationToken, Task> Execute { get; set; } = (_, _, _) => Task.CompletedTask;
         internal int Calls { get; private set; }

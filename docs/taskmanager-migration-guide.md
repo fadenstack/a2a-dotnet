@@ -193,7 +193,7 @@ taskManager.OnTaskCancelled = async (task, ct) =>
 **v1:**
 
 ```csharp
-public sealed class MyAgent : IAgentHandler
+public sealed class MyAgent : IAgentHandler, IAgentCancellationHandler
 {
     public async Task ExecuteAsync(
         RequestContext context,
@@ -219,8 +219,8 @@ public sealed class MyAgent : IAgentHandler
         await updater.CompleteAsync(cancellationToken: cancellationToken);
     }
 
-    // CancelAsync has a default implementation that transitions to Canceled.
-    // Override only if you need custom cleanup logic:
+    // Without IAgentCancellationHandler, A2AServer transitions the task to Canceled itself.
+    // Implement IAgentCancellationHandler only if you need custom cleanup logic:
     public async Task CancelAsync(
         RequestContext context,
         AgentEventQueue eventQueue,
@@ -244,8 +244,8 @@ What changed:
   `updater.AddArtifactAsync(parts)`
 - You don't create `AgentTask` objects directly — the SDK constructs them
   from events via `TaskProjection.Apply`
-- `OnTaskCancelled` → `IAgentHandler.CancelAsync()` (has a sensible default
-  implementation)
+- `OnTaskCancelled` → `IAgentCancellationHandler.CancelAsync()` (optional; the
+  server transitions the task to `Canceled` when the handler does not implement it)
 - The `TaskUpdater` manages task/context IDs — they come from
   `RequestContext` which is pre-populated by `A2AServer`
 
@@ -412,7 +412,7 @@ What changed:
 | `TaskQueryParams` | `GetTaskRequest` |
 | `TaskManager` | `A2AServer` + `IAgentHandler` |
 | `OnMessageReceived` / `OnTaskCreated` callbacks | `IAgentHandler.ExecuteAsync()` |
-| `OnTaskCancelled` callback | `IAgentHandler.CancelAsync()` |
+| `OnTaskCancelled` callback | `IAgentCancellationHandler.CancelAsync()` |
 | `taskManager.UpdateStatusAsync()` | `TaskUpdater` methods (`SubmitAsync`, `StartWorkAsync`, `CompleteAsync`, etc.) |
 | `taskManager.ReturnArtifactAsync()` | `TaskUpdater.AddArtifactAsync()` |
 | `ITaskStore` (6 methods) | `ITaskStore` (4 methods: `GetTaskAsync`, `SaveTaskAsync`, `DeleteTaskAsync`, `ListTasksAsync`) |
@@ -443,7 +443,7 @@ replacing old application-written webhook delivery.
 5. **Callback delegates removed** — `OnSendMessage`, `OnSendStreamingMessage`,
    `OnCancelTask`, `OnMessageReceived`, `OnTaskCreated`, `OnTaskCancelled`, and
    `OnTaskUpdated` do not exist in v1. All agent logic goes in
-   `IAgentHandler.ExecuteAsync()` and `CancelAsync()`.
+   `IAgentHandler.ExecuteAsync()` and, optionally, `IAgentCancellationHandler.CancelAsync()`.
 
 6. **`ITaskStore` simplified** — v1 `ITaskStore` has 4 methods (`GetTaskAsync`,
    `SaveTaskAsync`, `DeleteTaskAsync`, `ListTasksAsync`). Methods like

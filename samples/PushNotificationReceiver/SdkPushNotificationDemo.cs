@@ -97,7 +97,7 @@ internal sealed class SdkPushNotificationDemo
         },
     };
 
-    private sealed class DemoAgent : IAgentHandler
+    private sealed class DemoAgent : IAgentHandler, IAgentCancellationHandler
     {
         public async Task ExecuteAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken)
         {

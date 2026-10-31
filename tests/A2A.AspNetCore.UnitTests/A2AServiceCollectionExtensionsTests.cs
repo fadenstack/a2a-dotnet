@@ -58,7 +58,7 @@ public class A2AServiceCollectionExtensionsTests
         Assert.Equal(["text/plain", "image/png"], options.SupportedInputModes);
     }
 
-    private sealed class TestAgentHandler : IAgentHandler
+    private sealed class TestAgentHandler : IAgentHandler, IAgentCancellationHandler
     {
         public Task ExecuteAsync(
             RequestContext context,

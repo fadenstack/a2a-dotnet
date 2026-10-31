@@ -105,7 +105,7 @@ public sealed class A2AStandardRequestContextTests
         return await builder.Build().NegotiateExtensionsAsync(active ? [ExtensionUri] : []);
     }
 
-    private sealed class Agent : IAgentHandler
+    private sealed class Agent : IAgentHandler, IAgentCancellationHandler
     {
         public RequestContext? Context { get; private set; }
         public TaskCompletionSource? Gate { get; init; }

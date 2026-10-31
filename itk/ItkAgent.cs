@@ -10,7 +10,7 @@ namespace A2A.Itk;
 /// ITK instruction-handling agent. Parses nested traversal instructions,
 /// resolves agent cards, forwards messages, and collects traces.
 /// </summary>
-public sealed class ItkAgent(IHttpClientFactory httpClientFactory, ILogger<ItkAgent> logger) : IAgentHandler
+public sealed class ItkAgent(IHttpClientFactory httpClientFactory, ILogger<ItkAgent> logger) : IAgentHandler, IAgentCancellationHandler
 {
     public async Task ExecuteAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken)
     {

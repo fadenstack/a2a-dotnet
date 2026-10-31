@@ -49,7 +49,7 @@ namespace A2A.UnitTests.GitHubIssues
             Assert.True(responsesSeen >= 1, "the pre-failure Submitted response should have been observed");
         }
 
-        private sealed class HookAgentHandler : IAgentHandler
+        private sealed class HookAgentHandler : IAgentHandler, IAgentCancellationHandler
         {
             public Func<RequestContext, AgentEventQueue, CancellationToken, Task>? OnExecute { get; set; }
 

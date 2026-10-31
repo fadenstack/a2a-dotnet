@@ -866,7 +866,7 @@ public sealed class PushNotificationIntegrationTests(Xunit.Abstractions.ITestOut
             TaskPushNotificationConfig config, A2ARequestContext? requestContext, CancellationToken cancellationToken = default) => Task.FromResult(config);
     }
 
-    public sealed class IntegrationAgent : IAgentHandler
+    public sealed class IntegrationAgent : IAgentHandler, IAgentCancellationHandler
     {
         public Action<RequestContext>? BeforeExecute { get; set; }
         public TaskCompletionSource? FinishGate { get; set; }

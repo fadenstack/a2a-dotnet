@@ -465,12 +465,6 @@ public class V03ServerProcessorTests
             await eventQueue.EnqueueTaskAsync(task, cancellationToken);
             eventQueue.Complete();
         }
-
-        public async Task CancelAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken)
-        {
-            var updater = new TaskUpdater(eventQueue, context.TaskId, context.ContextId);
-            await updater.CancelAsync(cancellationToken: cancellationToken);
-        }
     }
 
     private sealed class RecordingRequestHandler : IA2ARequestHandler

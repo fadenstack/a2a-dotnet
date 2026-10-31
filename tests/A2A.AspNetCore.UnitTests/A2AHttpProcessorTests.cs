@@ -8,7 +8,7 @@ namespace A2A.AspNetCore.Tests;
 
 public class A2AHttpProcessorTests
 {
-    private sealed class TestAgentHandler : IAgentHandler
+    private sealed class TestAgentHandler : IAgentHandler, IAgentCancellationHandler
     {
         public async Task ExecuteAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken)
         {

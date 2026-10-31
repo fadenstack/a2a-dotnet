@@ -341,7 +341,7 @@ public sealed partial class TaskContinuationTests
     private static TaskPushNotificationConfig Config(string id = "config") =>
         new() { Id = id, TaskId = "task", Url = "https://callbacks.example.com/events" };
 
-    private sealed class Handler : IAgentHandler
+    private sealed class Handler : IAgentHandler, IAgentCancellationHandler
     {
         public Func<RequestContext, AgentEventQueue, CancellationToken, Task>? Execute { get; init; }
         public Task ExecuteAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken) =>

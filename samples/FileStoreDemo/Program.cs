@@ -222,7 +222,7 @@ static async Task<(WebApplication host, A2AClient client)> StartServerAsync(
 
 // ─── Simple demo agent ───
 
-file sealed class DemoAgent : IAgentHandler
+file sealed class DemoAgent : IAgentHandler, IAgentCancellationHandler
 {
     public static AgentCard GetAgentCard(string url) => new()
     {

@@ -126,7 +126,7 @@ namespace A2A.UnitTests.GitHubIssues
             Assert.Fail($"Task {taskId} did not reach {expected}.");
         }
 
-        private sealed class HookAgentHandler : IAgentHandler
+        private sealed class HookAgentHandler : IAgentHandler, IAgentCancellationHandler
         {
             public Func<RequestContext, AgentEventQueue, CancellationToken, Task>? OnExecute { get; set; }
 

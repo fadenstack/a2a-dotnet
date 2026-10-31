@@ -72,7 +72,7 @@ public sealed class PushNotificationRegistrationTests
         }
     }
 
-    public sealed class Agent : IAgentHandler
+    public sealed class Agent : IAgentHandler, IAgentCancellationHandler
     {
         public Task ExecuteAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken) => Task.CompletedTask;
         public Task CancelAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken) => Task.CompletedTask;

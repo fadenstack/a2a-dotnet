@@ -3,7 +3,7 @@ using System.Net;
 
 namespace AgentServer;
 
-internal sealed class ProactiveAgent() : IAgentHandler
+internal sealed class ProactiveAgent() : IAgentHandler, IAgentCancellationHandler
 {
     public Task ExecuteAsync(RequestContext context, AgentEventQueue eventQueue, CancellationToken cancellationToken) =>
         eventQueue.EnqueueTaskAsync(new AgentTask
