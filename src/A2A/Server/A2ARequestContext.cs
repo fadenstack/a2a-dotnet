@@ -23,10 +23,10 @@ public sealed class A2ARequestContext
     }
 
     /// <summary>Gets the exact extension identifiers requested by the client.</summary>
-    public IReadOnlySet<string> RequestedExtensions { get; }
+    public ExtensionSet RequestedExtensions { get; }
 
     /// <summary>Gets the extensions activated for this request.</summary>
-    public IReadOnlySet<string> ActivatedExtensions { get; }
+    public ExtensionSet ActivatedExtensions { get; }
 
     /// <summary>Gets whether the registered extension was activated for this request.</summary>
     /// <param name="registration">An extension registered by the registry that created this context.</param>

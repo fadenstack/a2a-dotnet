@@ -208,7 +208,7 @@ public sealed class A2ACardResolver
             new()
             {
                 ProtocolBinding = protocolBinding,
-                Url = url,
+                Url = url!,
                 ProtocolVersion = protocolVersion,
             }
         };

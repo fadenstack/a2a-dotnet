@@ -107,7 +107,7 @@ public sealed class InMemoryPushNotificationStore : IPushNotificationStore
             int offset = 0;
             if (!string.IsNullOrEmpty(request.PageToken))
             {
-                offset = ReadCursor(request.PageToken, request.TaskId, bucket.Revision);
+                offset = ReadCursor(request.PageToken!, request.TaskId, bucket.Revision);
                 if (offset >= bucket.Configs.Count)
                 {
                     throw new A2AException("Invalid or stale push configuration cursor.", A2AErrorCode.InvalidParams);
@@ -159,7 +159,7 @@ public sealed class InMemoryPushNotificationStore : IPushNotificationStore
                 bool valid = CryptographicOperations.FixedTimeEquals(signature, HMACSHA256.HashData(_cursorKey, data)) &&
                     cursor.StartsWith(prefix, StringComparison.Ordinal);
                 if (valid &&
-                    int.TryParse(cursor.AsSpan(prefix.Length), NumberStyles.None, CultureInfo.InvariantCulture, out int offset) &&
+                    int.TryParse(cursor[prefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int offset) &&
                     offset > 0)
                 {
                     return offset;

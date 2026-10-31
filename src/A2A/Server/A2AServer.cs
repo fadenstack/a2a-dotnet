@@ -411,7 +411,7 @@ public partial class A2AServer : IA2ARequestHandler, IAsyncDisposable
 
         if (!string.IsNullOrEmpty(taskId))
         {
-            existingTask = await _taskStore.GetTaskAsync(taskId, cancellationToken).ConfigureAwait(false)
+            existingTask = await _taskStore.GetTaskAsync(taskId!, cancellationToken).ConfigureAwait(false)
                 ?? throw new A2AException($"Task '{taskId}' not found.", A2AErrorCode.TaskNotFound);
             if (contextId is not null &&
                 !string.Equals(contextId, existingTask.ContextId, StringComparison.Ordinal))

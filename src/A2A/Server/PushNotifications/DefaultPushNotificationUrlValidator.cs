@@ -21,7 +21,7 @@ public sealed class DefaultPushNotificationUrlValidator : IPushNotificationUrlVa
     /// <summary>Creates a validator with a startup snapshot of host policy.</summary>
     /// <param name="options">Host filtering policy.</param>
     public DefaultPushNotificationUrlValidator(PushNotificationUrlOptions? options = null)
-        : this(options, Dns.GetHostAddressesAsync)
+        : this(options, static (host, cancellationToken) => Dns.GetHostAddressesAsync(host, cancellationToken))
     {
     }
 

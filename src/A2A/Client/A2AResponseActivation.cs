@@ -5,7 +5,7 @@ namespace A2A;
 /// <summary>Reads immutable response metadata without masking the original protocol failure.</summary>
 internal static class A2AResponseActivation
 {
-    internal static IReadOnlySet<string> Read(IEnumerable<string?> values)
+    internal static ExtensionSet Read(IEnumerable<string?> values)
     {
         try
         {
@@ -18,6 +18,6 @@ internal static class A2AResponseActivation
         }
     }
 
-    internal static IReadOnlySet<string> Read(HttpResponseMessage response)
+    internal static ExtensionSet Read(HttpResponseMessage response)
         => Read(response.Headers.TryGetValues("A2A-Extensions", out var values) ? values : []);
 }

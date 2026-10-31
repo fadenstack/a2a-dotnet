@@ -20,9 +20,9 @@ public sealed class A2ACustomOperationRegistry
     {
         _registryToken = registryToken;
         _registrations = new ReadOnlyDictionary<A2AOperationId, CustomOperationRegistration>(
-            new Dictionary<A2AOperationId, CustomOperationRegistration>(registrations));
+            registrations.ToDictionary(registration => registration.Key, registration => registration.Value));
         _extensions = new ReadOnlyDictionary<string, A2AExtensionRegistration>(
-            new Dictionary<string, A2AExtensionRegistration>(extensions, StringComparer.Ordinal));
+            extensions.ToDictionary(extension => extension.Key, extension => extension.Value, StringComparer.Ordinal));
         _requiredExtensions = _extensions.Values.Where(extension => extension.Required is true).ToArray();
     }
 

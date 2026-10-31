@@ -136,7 +136,7 @@ public sealed class A2AClient : IA2AClient, IDisposable
 
     [UnconditionalSuppressMessage("AOT", "IL2026:RequiresUnreferencedCode", Justification = "All types are registered in source-generated JsonContext.")]
     [UnconditionalSuppressMessage("AOT", "IL3050:RequiresDynamicCode", Justification = "All types are registered in source-generated JsonContext.")]
-    private async Task<(JsonRpcResponse Response, IReadOnlySet<string> Activation)> SendJsonRpcRequestCoreAsync(string method, object? @params, CancellationToken cancellationToken)
+    private async Task<(JsonRpcResponse Response, ExtensionSet Activation)> SendJsonRpcRequestCoreAsync(string method, object? @params, CancellationToken cancellationToken)
     {
         using var activity = A2ADiagnostics.Source.StartActivity($"A2AClient/{method}", ActivityKind.Client);
         var stopwatch = Stopwatch.StartNew();
@@ -153,7 +153,7 @@ public sealed class A2AClient : IA2AClient, IDisposable
         activity?.SetTag("url.full", _url);
         activity?.SetTag("rpc.jsonrpc.request_id", rpcRequest.Id.ToString());
 
-        IReadOnlySet<string> activation = System.Collections.Frozen.FrozenSet<string>.Empty;
+        ExtensionSet activation = System.Collections.Frozen.FrozenSet<string>.Empty;
         try
         {
             A2ADiagnostics.ClientRequestCount.Add(1);
@@ -211,7 +211,7 @@ public sealed class A2AClient : IA2AClient, IDisposable
 
         HttpResponseMessage? response = null;
         Stream? stream = null;
-        IReadOnlySet<string> activation = System.Collections.Frozen.FrozenSet<string>.Empty;
+        ExtensionSet activation = System.Collections.Frozen.FrozenSet<string>.Empty;
 
         try
         {

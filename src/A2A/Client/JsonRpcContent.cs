@@ -51,6 +51,7 @@ public sealed class JsonRpcContent : HttpContent
     protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
         JsonSerializer.SerializeAsync(stream, _contentToSerialize, _contentTypeInfo);
 
+#if NET
     /// <inheritdoc />
     protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken) =>
         JsonSerializer.SerializeAsync(stream, _contentToSerialize, _contentTypeInfo, cancellationToken);
@@ -58,4 +59,5 @@ public sealed class JsonRpcContent : HttpContent
     /// <inheritdoc />
     protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) =>
         JsonSerializer.Serialize(stream, _contentToSerialize, _contentTypeInfo);
+#endif
 }

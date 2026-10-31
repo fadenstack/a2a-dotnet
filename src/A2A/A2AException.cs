@@ -18,7 +18,7 @@ public class A2AException : Exception
     /// authorization grant, and is never inferred from the client's requested extensions.
     /// Existing exception types, messages, and error codes are preserved.
     /// </remarks>
-    public IReadOnlySet<string> ActivatedExtensions { get; internal set; } = System.Collections.Frozen.FrozenSet<string>.Empty;
+    public ExtensionSet ActivatedExtensions { get; internal set; } = System.Collections.Frozen.FrozenSet<string>.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="A2AException"/> class.

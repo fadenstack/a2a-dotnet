@@ -13,7 +13,7 @@ Key features include:
 - **Task-based Communication**: Create and manage persistent, long-running agent tasks
 - **Streaming Support**: Real-time communication using Server-Sent Events
 - **ASP.NET Core Integration**: Built-in extensions for hosting A2A agents in web applications
-- **Cross-platform Compatibility**: Supports .NET 8+
+- **Cross-platform Compatibility**: The transport-neutral A2A package supports .NET Standard 2.0, .NET 8 and .NET 10. A2A.AspNetCore requires .NET 8 or later.
 
 ## Protocol Compatibility
 
@@ -63,7 +63,7 @@ This library contains the core A2A protocol implementation. It includes the foll
 
 ### Server Classes  
 - **`A2AServer`**: Core server that handles A2A JSON-RPC requests, manages task lifecycle via `TaskProjection`, and coordinates streaming/non-streaming responses. Implements `IA2ARequestHandler`.
-- **`IAgentHandler`**: Interface that agents implement. Provides `ExecuteAsync()` for message handling and `CancelAsync()` for task cancellation.
+- **`IAgentHandler`**: Interface that agents implement. Provides `ExecuteAsync()` for message handling. Also implement `IAgentCancellationHandler` to customize `CancelAsync()`; without it, `A2AServer` transitions the task to `Canceled` itself.
 - **`TaskUpdater`**: Convenience API for emitting task lifecycle events (Submit, StartWork, AddArtifact, Complete, Fail, Cancel, RequireInput).
 - **`MessageResponder`**: Convenience API for stateless message replies without task lifecycle.
 - **`RequestContext`**: Pre-resolved context provided to agents, containing the incoming message, task ID, context ID, and helper properties like `UserText` and `IsContinuation`.
