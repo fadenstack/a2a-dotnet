@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Runs a representative subset of A2A.UnitTests against the netstandard2.0 build of A2A
+    on .NET Framework 4.8 (Windows only). A2A.UnitTests itself references A2A.AspNetCore, which needs .NET 8+.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <NoWarn>$(NoWarn);IDE1006</NoWarn>
+    <RootNamespace>A2A.UnitTests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\A2A\A2A.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.Net.Http" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!-- Representative tests shared with A2A.UnitTests: models and serialization, JSON-RPC, client, server task flow, cancellation, event queue -->
+  <ItemGroup>
+    <Compile Include="..\A2A.UnitTests\Models\**\*.cs" Link="Models\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- xUnit cannot compare ReadOnlyMemory<byte> values on .NET Framework (test tooling limit, not A2A behavior) -->
+    <Compile Remove="..\A2A.UnitTests\Models\AIContentExtensionsTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Serialization\**\*.cs" Link="Serialization\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\A2A.UnitTests\JsonRpc\**\*.cs" Link="JsonRpc\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\A2A.UnitTests\MockHttpMessageHandler.cs" Link="MockHttpMessageHandler.cs" />
+    <Compile Include="..\A2A.UnitTests\Client\A2AClientTests.cs" Link="Client\A2AClientTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Client\A2AHttpJsonClientTests.cs" Link="Client\A2AHttpJsonClientTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Client\JsonRpcContentTests.cs" Link="Client\JsonRpcContentTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Server\A2AServerTests.cs" Link="Server\A2AServerTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Server\AgentCancellationHandlerTests.cs" Link="Server\AgentCancellationHandlerTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Server\AgentEventQueueTests.cs" Link="Server\AgentEventQueueTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Server\InMemoryTaskStoreTests.cs" Link="Server\InMemoryTaskStoreTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Server\TaskProjectionTests.cs" Link="Server\TaskProjectionTests.cs" />
+    <Compile Include="..\A2A.UnitTests\Server\TaskUpdaterTests.cs" Link="Server\TaskUpdaterTests.cs" />
+  </ItemGroup>
+
+</Project>

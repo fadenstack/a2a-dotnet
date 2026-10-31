@@ -1,7 +1,7 @@
 // Fallbacks for framework APIs that netstandard2.0 does not have. Call sites use the
 // modern API shape; on newer targets the framework members apply and these are not compiled.
 #if NETSTANDARD2_0
-#pragma warning disable CA1822, CA2016, EA0014, RCS1141, VSTHRD003
+#pragma warning disable CA1822, CA1849, CA2016, EA0014, RCS1141, VSTHRD003, VSTHRD103
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -145,6 +145,31 @@ namespace System.Threading.Tasks
             }
 
             await task.ConfigureAwait(false);
+        }
+
+        /// <summary>Waits for the task, abandoning the wait when the timeout elapses.</summary>
+        public static async Task WaitAsync(this Task task, TimeSpan timeout)
+        {
+            using var timeoutSource = new CancellationTokenSource();
+            var delay = Task.Delay(timeout, timeoutSource.Token);
+            if (task != await Task.WhenAny(task, delay).ConfigureAwait(false))
+            {
+                throw new TimeoutException();
+            }
+
+            timeoutSource.Cancel();
+            await task.ConfigureAwait(false);
+        }
+
+        /// <summary>Waits for the task, abandoning the wait when the timeout elapses or the token is canceled.</summary>
+        public static Task WaitAsync(this Task task, TimeSpan timeout, CancellationToken cancellationToken) =>
+            task.WaitAsync(cancellationToken).WaitAsync(timeout);
+
+        /// <summary>Waits for the task, abandoning the wait when the timeout elapses.</summary>
+        public static async Task<T> WaitAsync<T>(this Task<T> task, TimeSpan timeout)
+        {
+            await ((Task)task).WaitAsync(timeout).ConfigureAwait(false);
+            return await task.ConfigureAwait(false);
         }
 
         /// <summary>Waits for the task, abandoning the wait when the token is canceled.</summary>
