@@ -1,0 +1,88 @@
+# Fadenstack fork only (see FORK.md): weekly merge of upstream main into feat/netstandard2.0.
+# Pushes to the branch only when the merge is clean and everything is green; otherwise opens a PR for a human.
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  FORK_BRANCH: feat/netstandard2.0
+  UPSTREAM_URL: https://github.com/a2aproject/a2a-dotnet.git
+
+jobs:
+  sync:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feat/netstandard2.0
+          fetch-depth: 0
+      - name: Setup .NET 10.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.x
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 8.x
+      - name: Fetch upstream and merge
+        id: merge
+        run: |
+          git config user.name "fadenstack-sync"
+          git config user.email "sync@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch upstream main
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Already up to date."
+            echo "status=uptodate" >> "$GITHUB_OUTPUT"
+          elif git merge --no-ff -m "chore: merge upstream main" upstream/main; then
+            echo "status=merged" >> "$GITHUB_OUTPUT"
+          else
+            git merge --abort
+            echo "status=conflict" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build
+        if: steps.merge.outputs.status == 'merged'
+        id: build
+        continue-on-error: true
+        run: dotnet build ./A2A.slnx
+      - name: Test net8.0 and net10.0
+        if: steps.merge.outputs.status == 'merged' && steps.build.outcome == 'success'
+        id: test
+        continue-on-error: true
+        run: dotnet test ./tests/A2ATests.slnx --verbosity minimal
+      - name: Test net48
+        if: steps.merge.outputs.status == 'merged' && steps.build.outcome == 'success'
+        id: test48
+        continue-on-error: true
+        run: dotnet test ./tests/A2A.Net48.UnitTests/A2A.Net48.UnitTests.csproj --verbosity minimal
+      - name: Push when green
+        if: steps.merge.outputs.status == 'merged' && steps.build.outcome == 'success' && steps.test.outcome == 'success' && steps.test48.outcome == 'success'
+        run: git push origin HEAD:"$FORK_BRANCH"
+      - name: Open a PR when the merge needs a human
+        if: steps.merge.outputs.status == 'conflict' || (steps.merge.outputs.status == 'merged' && (steps.build.outcome != 'success' || steps.test.outcome != 'success' || steps.test48.outcome != 'success'))
+        run: |
+          branch="sync/upstream-$(date +%Y%m%d)"
+          reason="Build or tests failed after merging upstream main (see the workflow run)."
+          if [ "${{ steps.merge.outputs.status }}" = "conflict" ]; then
+            # Nothing mergeable to push: branch from upstream main so the PR shows the conflicts to resolve.
+            git checkout -B "$branch" upstream/main
+            reason="Merging upstream main into $FORK_BRANCH conflicts. Resolve the conflicts on this branch (merge $FORK_BRANCH into it) and re-run the tests."
+          else
+            git checkout -B "$branch"
+          fi
+          git push --force origin "$branch"
+          gh pr create --base "$FORK_BRANCH" --head "$branch" \
+            --title "chore: merge upstream main ($(date +%Y-%m-%d))" \
+            --body "$reason Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" || echo "PR already exists or could not be created."

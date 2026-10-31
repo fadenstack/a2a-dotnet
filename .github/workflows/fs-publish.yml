@@ -1,0 +1,42 @@
+# Fadenstack fork only (see FORK.md): publish A2A to GitHub Packages of the fadenstack org.
+# Tag fs-v<n> publishes version <upstream version>-fs.<n>, for example tag fs-v1 -> 1.0.0-preview4-fs.1.
+name: Fork publish
+
+on:
+  push:
+    tags: [ "fs-v*" ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup .NET 10.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.x
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 8.x
+      - name: Compute version
+        id: version
+        shell: pwsh
+        run: |
+          $upstream = ([xml](Get-Content ./src/Directory.Build.props)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          $n = $env:GITHUB_REF_NAME.Substring('fs-v'.Length)
+          if ($n -notmatch '^[0-9]+$') { throw "Tag must look like fs-v<n>, got $env:GITHUB_REF_NAME" }
+          "version=$upstream-fs.$n" >> $env:GITHUB_OUTPUT
+      - name: Build
+        run: dotnet build ./A2A.slnx --configuration Release
+      - name: Pack A2A
+        run: dotnet pack ./src/A2A/A2A.csproj --configuration Release -p:Version=${{ steps.version.outputs.version }} --output ./artifacts/packages
+      - name: Assert package contents
+        shell: pwsh
+        run: ./.github/scripts/assert-a2a-package.ps1 -PackagePath ./artifacts/packages/A2A.${{ steps.version.outputs.version }}.nupkg
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push "./artifacts/packages/*.nupkg" --source "https://nuget.pkg.github.com/fadenstack/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Compiles a netstandard2.0 library against the packed A2A NuGet package (not the project reference),
+    to prove the package ships lib/netstandard2.0 and its dependencies resolve for a netstandard2.0 consumer.
+    Pack A2A to artifacts/packages first, then build with -p:A2APackageVersion=<packed version>.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <A2APackageVersion Condition="'$(A2APackageVersion)' == ''">1.0.0-preview4-fs.1</A2APackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="A2A" VersionOverride="$(A2APackageVersion)" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,78 @@
+# Fadenstack fork only (see FORK.md): build, pack, and test the netstandard2.0 branch.
+name: Fork build and test
+
+on:
+  push:
+    branches: [ "feat/netstandard2.0" ]
+  pull_request:
+    branches: [ "feat/netstandard2.0" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup .NET 10.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.x
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 8.x
+      - name: Restore dependencies
+        run: dotnet restore ./A2A.slnx
+      - name: Build all targets (warnings are errors)
+        run: dotnet build ./A2A.slnx --no-restore
+      - name: Pack A2A
+        run: dotnet pack ./src/A2A/A2A.csproj --configuration Release --output ./artifacts/packages
+      - name: Assert package contents
+        shell: pwsh
+        run: |
+          $package = Get-ChildItem ./artifacts/packages -Filter 'A2A.*.nupkg' | Select-Object -First 1
+          ./.github/scripts/assert-a2a-package.ps1 -PackagePath $package.FullName
+      - name: Compile the netstandard2.0 consumer against the package
+        shell: pwsh
+        run: |
+          $package = Get-ChildItem ./artifacts/packages -Filter 'A2A.*.nupkg' | Select-Object -First 1
+          $version = $package.BaseName.Substring('A2A.'.Length)
+          dotnet build ./tests/A2A.NetStandardConsumer/A2A.NetStandardConsumer.csproj -p:A2APackageVersion=$version
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dotnet-version: 8.x
+            framework: net8.0
+          - dotnet-version: 10.x
+            framework: net10.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup .NET 10.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.x
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Build tests
+        run: dotnet build ./tests/A2ATests.slnx --framework ${{ matrix.framework }}
+      - name: Test
+        run: dotnet test ./tests/A2ATests.slnx --no-build --verbosity normal --framework ${{ matrix.framework }}
+
+  test-net48:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup .NET 10.x
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.x
+      - name: Test on .NET Framework 4.8
+        run: dotnet test ./tests/A2A.Net48.UnitTests/A2A.Net48.UnitTests.csproj --verbosity normal
