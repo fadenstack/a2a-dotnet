@@ -33,10 +33,12 @@ jobs:
           "version=$upstream-fs.$n" >> $env:GITHUB_OUTPUT
       - name: Build
         run: dotnet build ./A2A.slnx --configuration Release
+      # GitHub Packages links a package to the repository its RepositoryUrl names, and that repository must belong to the
+      # feed's owner: the package names this fork, not upstream (PackageProjectUrl stays upstream's).
       - name: Pack A2A
-        run: dotnet pack ./src/A2A/A2A.csproj --configuration Release -p:Version=${{ steps.version.outputs.version }} --output ./artifacts/packages
+        run: dotnet pack ./src/A2A/A2A.csproj --configuration Release -p:Version=${{ steps.version.outputs.version }} -p:RepositoryUrl=https://github.com/fadenstack/a2a-dotnet --output ./artifacts/packages
       - name: Assert package contents
         shell: pwsh
         run: ./.github/scripts/assert-a2a-package.ps1 -PackagePath ./artifacts/packages/A2A.${{ steps.version.outputs.version }}.nupkg
       - name: Publish to GitHub Packages
-        run: dotnet nuget push "./artifacts/packages/*.nupkg" --source "https://nuget.pkg.github.com/fadenstack/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
+        run: dotnet nuget push "./artifacts/packages/*.nupkg" --source "https://nuget.pkg.github.com/fadenstack/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate --no-symbols

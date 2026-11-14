@@ -20,6 +20,8 @@ Support statement: the transport-neutral `A2A` package supports .NET Standard 2.
 
 The package id stays `A2A` and the assemblies stay signed with upstream's strong-name key (`Open.snk`), so returning to the official
 package later is a version bump. Fork versions are `<upstream version>-fs.<n>`, for example `1.0.0-preview4-fs.1`.
+The package on the `fadenstack` GitHub Packages feed is private, and its repository URL names this fork, because GitHub Packages
+links a package only to a repository of the feed's owner. The project URL stays upstream's.
 
 ## Behavior change to know about
 
@@ -85,7 +87,8 @@ CI (new files only; upstream workflows are untouched)
 
 - `.github/workflows/fs-build-and-test.yml`: build all targets, pack, assert package contents, compile the consumer, test on net8.0, net10.0 and net48 (Windows).
 - `.github/workflows/fs-sync-upstream.yml`: weekly merge of upstream main into `feat/netstandard2.0`.
-- `.github/workflows/fs-publish.yml`: on tags `fs-v*`, pack and publish to GitHub Packages of the `fadenstack` org.
+- `.github/workflows/fs-publish.yml`: on tags `fs-v*`, pack (with the fork as the package's repository URL) and publish to GitHub Packages of the `fadenstack` org.
+- `tests/.editorconfig`: turns off CA2026 for upstream's test code, which the CI runners' toolchain started flagging in November 2026 (upstream's CI fails the same way); drop it when upstream fixes its tests.
 - `.github/scripts/assert-a2a-package.ps1`: asserts the packed package has `lib/netstandard2.0/A2A.dll` and the expected dependency groups.
 
 ## How the fork is kept current
