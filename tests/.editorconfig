@@ -1,0 +1,6 @@
+# Fadenstack fork only (see FORK.md). CA2026 (use JsonElement.Parse) started failing upstream's test code on the CI
+# runners in November 2026; upstream's own CI fails the same way. Test code only: the library still gets the rule.
+# Drop this file when upstream fixes its tests.
+
+[*.cs]
+dotnet_diagnostic.CA2026.severity = none
